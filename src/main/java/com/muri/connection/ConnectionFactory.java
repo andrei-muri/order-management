@@ -17,11 +17,11 @@ public class ConnectionFactory {
     private static ConnectionFactory instance = new ConnectionFactory();
 
     private ConnectionFactory() {
-        //The logging will be in connection_log.txt from logs directory
+        //The logging will be in events.log from logs directory
         FileHandler fh;
 
         try {
-            fh = new FileHandler("logs/connection.log");
+            fh = new FileHandler("logs/events.log");
             LOGGER.addHandler(fh);
             fh.setFormatter(new SimpleFormatter());
 
@@ -55,9 +55,12 @@ public class ConnectionFactory {
         if(connection != null) {
             try {
                 connection.close();
+                LOGGER.info("Connection successfully closed");
             } catch (SQLException e) {
                 LOGGER.log(Level.WARNING, "An error occurred while trying to close the connection");
             }
+        } else {
+            LOGGER.log(Level.WARNING, "No connection to close");
         }
     }
 
@@ -65,9 +68,12 @@ public class ConnectionFactory {
         if(statement != null) {
             try {
                 statement.close();
+                LOGGER.info("Statement " + statement.toString() + " successfully closed");
             } catch (SQLException e) {
                 LOGGER.log(Level.WARNING, "An error occurred while trying to close the statement");
             }
+        } else {
+            LOGGER.log(Level.WARNING, "No statement to close");
         }
     }
 
@@ -75,9 +81,12 @@ public class ConnectionFactory {
         if (resultSet != null) {
             try {
                 resultSet.close();
+                LOGGER.info("Result set " + resultSet.toString() + " successfully closed");
             } catch (SQLException e) {
                 LOGGER.log(Level.WARNING, "An error occurred while trying to close the ResultSet");
             }
+        } else {
+            LOGGER.log(Level.WARNING, "No result set to close");
         }
     }
 
