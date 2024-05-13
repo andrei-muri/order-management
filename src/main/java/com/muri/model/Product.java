@@ -31,4 +31,20 @@ public class Product {
     public void setStock(int stock) {
         this.stock = stock;
     }
+
+    public long getId() {
+        return id;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public int getPrice() {
+        return price;
+    }
+
+    public int getStock() {
+        return stock;
+    }
 }

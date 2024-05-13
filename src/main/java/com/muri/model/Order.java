@@ -16,4 +16,16 @@ public class Order {
     public void setQuantity(int quantity) {
         this.quantity = quantity;
     }
+
+    public long getClient_id() {
+        return client_id;
+    }
+
+    public long getProduct_id() {
+        return product_id;
+    }
+
+    public int getQuantity() {
+        return quantity;
+    }
 }

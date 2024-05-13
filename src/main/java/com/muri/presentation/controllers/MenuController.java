@@ -1,5 +1,8 @@
 package com.muri.presentation.controllers;
 
+import com.muri.business.ClientBL;
+import com.muri.business.ProductBL;
+import com.muri.dao.ClientDAO;
 import com.muri.model.Client;
 import com.muri.model.Product;
 import com.muri.presentation.controllers.client.ClientController;
@@ -22,12 +25,12 @@ public class MenuController {
         view.getClientButton().addActionListener((e) ->
         {
             view.setVisible(false);
-            new ClientController().populateTableWithData(List.of(new Client(5, "andrei", "asds", "Sibiu")));
+            new ClientController().populateTableWithData(ClientBL.findAll());
         });
         view.getProductButton().addActionListener((e) ->
         {
             view.setVisible(false);
-            new ProductController().populateTableWithData(List.of(new Product(1, "Shoes", 2, 12)));
+            new ProductController().populateTableWithData(ProductBL.findAll());
         });
         view.getOrderButton().addActionListener((e) -> {
             view.setVisible(false);
