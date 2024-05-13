@@ -17,6 +17,7 @@ import javax.swing.table.DefaultTableModel;
 import java.awt.*;
 import java.lang.reflect.*;
 import java.lang.reflect.ParameterizedType;
+import java.util.Map;
 import java.util.Vector;
 
 public class AbstractController<T> {
@@ -86,7 +87,6 @@ public class AbstractController<T> {
             addView.setVisible(false);
             view.setVisible(true);
         });
-
         view.getEditButton().addActionListener(e -> {
             int selectedRow = view.getTable().getSelectedRow();
             System.out.println(selectedRow);
@@ -123,6 +123,38 @@ public class AbstractController<T> {
                 JOptionPane.showMessageDialog(view, "Please select a row to edit.");
             }
         });
+
+    }
+
+    protected T getInstanceFromTextFields() {
+        addView.setData();
+        T instance;
+        try {
+            instance = type.getDeclaredConstructor().newInstance();
+            Map<String, Object> map = addView.getFieldMap();
+            Field[] fields = type.getDeclaredFields();
+            //int i = 1;
+            for(int i = 1; i < fields.length; i++) {
+                Field field = fields[i];
+                field.setAccessible(true);
+                Class<?> fieldType = field.getType();
+                Object value = parseValue(fieldType, map.get(field.getName()).toString());
+                field.set(instance, value);
+            }
+//            for(Map.Entry<String, Object> entry : addView.getFieldMap().entrySet())
+//            {
+//                if(fields[i].getName().equals("id")) {i++; continue;}
+//                Field field = fields[i];
+//                field.setAccessible(true);
+//                Class<?> fieldType = field.getType();
+//                Object value = parseValue(fieldType, entry.getValue().toString());
+//                field.set(instance, value);
+//                i++;
+//            }
+        } catch (Exception e) {
+            throw new RuntimeException("Error creating instance from text fields", e);
+        }
+        return instance;
     }
 
     private T getInstanceFromRow(int row) {
@@ -145,7 +177,7 @@ public class AbstractController<T> {
         return instance;
     }
 
-    private Object parseValue(Class<?> type, String value) {
+    protected Object parseValue(Class<?> type, String value) {
         try {
             if (Integer.class == type || int.class == type) {
                 return Integer.parseInt(value);

@@ -10,4 +10,8 @@ public class ClientBL {
     public static List<Client> findAll() {
         return dao.findAll();
     }
+
+    public static Client insertClient(Client client) {
+        return dao.insert(client);
+    }
 }

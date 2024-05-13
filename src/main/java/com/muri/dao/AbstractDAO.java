@@ -6,10 +6,7 @@ import java.beans.IntrospectionException;
 import java.beans.PropertyDescriptor;
 import java.io.IOException;
 import java.lang.reflect.*;
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
+import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.FileHandler;
@@ -44,6 +41,38 @@ public class AbstractDAO<T> {
         return sb.toString();
     }
 
+    private String createInsertQuery(String table) {
+        StringBuilder sb = new StringBuilder();
+        sb.append("INSERT INTO ");
+        sb.append(table); sb.append(" (");
+        for(Field field : type.getDeclaredFields()) {
+            field.setAccessible(true);
+            if(field.getName().equals("id")) {
+                continue;
+            }
+            sb.append(field.getName()).append(", ");
+        }
+        sb.delete(sb.length() - 2, sb.length());
+
+        sb.append(") VALUES (");
+
+        for (Field field : type.getDeclaredFields()) {
+            field.setAccessible(true);
+            if(field.getName().equals("id")) {
+                continue;
+            }
+            sb.append("?, ");
+        }
+        sb.delete(sb.length() - 2, sb.length());
+        sb.append(")");
+
+        return sb.toString();
+    }
+
+//    private String createDeleteQuery(String table) {
+//
+//    }
+
     public List<T> findAll() {
         Connection connection = null;
         PreparedStatement statement = null;
@@ -66,6 +95,52 @@ public class AbstractDAO<T> {
         }
         return null;
     }
+
+    public T insert(T object) {
+        Connection connection = null;
+        PreparedStatement statement = null;
+        ResultSet resultSet = null;
+        String query = createInsertQuery(type.getSimpleName());
+        try {
+            connection = ConnectionFactory.getConnection();
+            statement = connection.prepareStatement(query, Statement.RETURN_GENERATED_KEYS);
+
+            int parameterIndex = 1;
+            for (Field field : object.getClass().getDeclaredFields()) {
+                field.setAccessible(true);
+                if (field.getName().equals("id")) {
+                    continue;
+                }
+                Object value = field.get(object);
+                statement.setObject(parameterIndex, value);
+                parameterIndex++;
+            }
+
+            int rowsInserted = statement.executeUpdate();
+            if (rowsInserted > 0) {
+                LOGGER.info("Inserted " + rowsInserted + " row(s) into " + type.getSimpleName());
+                resultSet = statement.getGeneratedKeys();
+                if (resultSet.next()) {
+                    long generatedId = resultSet.getLong(1);
+                    Field idField = object.getClass().getDeclaredField("id");
+                    idField.setAccessible(true);
+                    idField.set(object, generatedId);
+                }
+            } else {
+                LOGGER.warning("Insert operation failed for " + type.getSimpleName());
+                return null;
+            }
+        } catch (SQLException | IllegalAccessException | NoSuchFieldException e) {
+            LOGGER.log(Level.WARNING, type.getName() + "DAO:insert " + e.getMessage());
+            return null;
+        } finally {
+            ConnectionFactory.close(resultSet);
+            ConnectionFactory.close(statement);
+            ConnectionFactory.close(connection);
+        }
+        return object;
+    }
+
 
 
     private List<T> createObjects(ResultSet resultSet) {

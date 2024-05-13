@@ -11,4 +11,8 @@ public class ProductBL {
     public static List<Product> findAll() {
         return dao.findAll();
     }
+
+    public static Product insert(Product product) {
+        return dao.insert(product);
+    }
 }
