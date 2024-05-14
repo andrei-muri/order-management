@@ -9,7 +9,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class AbstractAddView<T> extends JFrame {
+public class AbstractAddView<T> extends JFrame implements ObjectManipulator{
     JButton addButton;
     JButton cancelButton;
     Class<T> type;
@@ -55,6 +55,7 @@ public class AbstractAddView<T> extends JFrame {
         repaint();
     }
 
+    @Override
     public void setData() {
         int i = 0;
         for(Field field : type.getDeclaredFields()) {

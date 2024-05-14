@@ -9,14 +9,14 @@ import com.muri.presentation.views.order.OrderView;
 
 public class OrderController extends AbstractController<Order> {
     public OrderController() {
-        super(new OrderView(), new OrderAddView());
+        super(new OrderView(), new OrderAddView(), new OrderEditView());
         setActions();
     }
 
     private void setActions() {
         //insert
         addView.getAddButton().addActionListener((e) -> {
-            Order order = getInstanceFromTextFields();
+            Order order = getInstanceFromTextFields(addView);
 //            OrderBL.insert(order);
             addView.setVisible(false);
             populateTableWithData(OrderBL.findAll());

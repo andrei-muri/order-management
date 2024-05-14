@@ -7,6 +7,7 @@ import com.muri.presentation.controllers.MenuController;
 import com.muri.presentation.views.abstractview.AbstractAddView;
 import com.muri.presentation.views.abstractview.AbstractEditView;
 import com.muri.presentation.views.abstractview.AbstractView;
+import com.muri.presentation.views.abstractview.ObjectManipulator;
 import com.muri.presentation.views.client.ClientEditView;
 import com.muri.presentation.views.order.OrderEditView;
 import com.muri.presentation.views.product.ProductEditView;
@@ -25,11 +26,14 @@ public class AbstractController<T> {
     protected AbstractAddView<T> addView;
     protected AbstractEditView<T> editView;
     protected Class<T> type;
+    int i = 0;
+    int lastRow;
 
     @SuppressWarnings("unchecked")
-    public AbstractController(AbstractView<T> view, AbstractAddView<T> addView) {
+    public AbstractController(AbstractView<T> view, AbstractAddView<T> addView, AbstractEditView<T> editView) {
         this.view = view;
         this.addView = addView;
+        this.editView = editView;
         this.type = (Class<T>) ((ParameterizedType) getClass().getGenericSuperclass()).getActualTypeArguments()[0];
         view.setVisible(true);
         initTable();
@@ -89,7 +93,6 @@ public class AbstractController<T> {
         });
         view.getEditButton().addActionListener(e -> {
             int selectedRow = view.getTable().getSelectedRow();
-            System.out.println(selectedRow);
             DefaultTableModel model = (DefaultTableModel) view.getTable().getModel();
             if (selectedRow >= 0) {
                 T instance = getInstanceFromRow(selectedRow);
@@ -106,13 +109,13 @@ public class AbstractController<T> {
                     }
                 }
 
-                if(type.getSimpleName().equals("Client")) {
-                    editView = (AbstractEditView<T>) new ClientEditView((Client) instance);
-                } else if(type.getSimpleName().equals("Product")) {
-                    editView = (AbstractEditView<T>) new ProductEditView((Product) instance);
-                } else {
-                    editView = (AbstractEditView<T>) new OrderEditView((Order) instance);
+
+                if(i == 0) {
+                    editView.initForm(instance);
+                    i++;
                 }
+                editView.setDefaultText(instance);
+
                 editView.getCancelButton().addActionListener((e1) -> {
                     editView.setVisible(false);
                     view.setVisible(true);
@@ -126,31 +129,21 @@ public class AbstractController<T> {
 
     }
 
-    protected T getInstanceFromTextFields() {
-        addView.setData();
+    protected T getInstanceFromTextFields(ObjectManipulator view) {
+        view.setData();
         T instance;
         try {
             instance = type.getDeclaredConstructor().newInstance();
-            Map<String, Object> map = addView.getFieldMap();
+            Map<String, Object> map = view.getFieldMap();
             Field[] fields = type.getDeclaredFields();
-            //int i = 1;
             for(int i = 1; i < fields.length; i++) {
                 Field field = fields[i];
                 field.setAccessible(true);
-                Class<?> fieldType = field.getType();
+                Class<?> fieldType = field.getType();//System.out.println("rr");
                 Object value = parseValue(fieldType, map.get(field.getName()).toString());
+
                 field.set(instance, value);
             }
-//            for(Map.Entry<String, Object> entry : addView.getFieldMap().entrySet())
-//            {
-//                if(fields[i].getName().equals("id")) {i++; continue;}
-//                Field field = fields[i];
-//                field.setAccessible(true);
-//                Class<?> fieldType = field.getType();
-//                Object value = parseValue(fieldType, entry.getValue().toString());
-//                field.set(instance, value);
-//                i++;
-//            }
         } catch (Exception e) {
             throw new RuntimeException("Error creating instance from text fields", e);
         }
@@ -177,7 +170,7 @@ public class AbstractController<T> {
         return instance;
     }
 
-    protected Object parseValue(Class<?> type, String value) {
+    public static Object parseValue(Class<?> type, String value) {
         try {
             if (Integer.class == type || int.class == type) {
                 return Integer.parseInt(value);

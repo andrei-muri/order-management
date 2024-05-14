@@ -69,6 +69,31 @@ public class AbstractDAO<T> {
         return sb.toString();
     }
 
+    private String createUpdateQuery(String table) {
+        StringBuilder sb = new StringBuilder();
+        sb.append("UPDATE ");
+        sb.append(table);
+        sb.append(" SET ");
+
+        Field[] fields = type.getDeclaredFields();
+        boolean first = true;
+        for (Field field : fields) {
+            field.setAccessible(true);
+            if (field.getName().equals("id")) {
+                continue;
+            }
+            if (!first) {
+                sb.append(", ");
+            }
+            sb.append(field.getName()).append(" = ?");
+            first = false;
+        }
+
+        sb.append(" WHERE id = ?");
+
+        return sb.toString();
+    }
+
 //    private String createDeleteQuery(String table) {
 //
 //    }
@@ -141,7 +166,46 @@ public class AbstractDAO<T> {
         return object;
     }
 
+    public T update(T object) {
+        Connection connection = null;
+        PreparedStatement statement = null;
+        String query = createUpdateQuery(type.getSimpleName());
+        try {
+            connection = ConnectionFactory.getConnection();
+            statement = connection.prepareStatement(query);
 
+            int parameterIndex = 1;
+            for (Field field : object.getClass().getDeclaredFields()) {
+                field.setAccessible(true);
+                if (field.getName().equals("id")) {
+                    continue;
+                }
+                Object value = field.get(object);
+                statement.setObject(parameterIndex, value);
+                parameterIndex++;
+            }
+
+            Field idField = object.getClass().getDeclaredField("id");
+            idField.setAccessible(true);
+            Object idValue = idField.get(object);
+            statement.setObject(parameterIndex, idValue);
+
+            int rowsUpdated = statement.executeUpdate();
+            if (rowsUpdated > 0) {
+                LOGGER.info("Updated " + rowsUpdated + " row(s) in " + type.getSimpleName());
+            } else {
+                LOGGER.warning("Update operation failed for " + type.getSimpleName());
+                return null;
+            }
+        } catch (SQLException | IllegalAccessException | NoSuchFieldException e) {
+            LOGGER.log(Level.WARNING, type.getName() + " DAO:update: " + e.getMessage(), e);
+            return null;
+        } finally {
+            ConnectionFactory.close(statement);
+            ConnectionFactory.close(connection);
+        }
+        return object;
+    }
 
     private List<T> createObjects(ResultSet resultSet) {
         List<T> list = new ArrayList<>();
