@@ -10,7 +10,7 @@ public class OrderValidator implements Validator<Order> {
 
     @Override
     public boolean validate(Order order) {
-        if (clientDao.findById((int) order.getClient_id()) != 1 || productDAO.findById((int) order.getProduct_id()) != 1) return false;
+        if (clientDao.findById((int) order.getClient_id()) == null || productDAO.findById((int) order.getProduct_id()) == null) return false;
         int productStock = productDAO.getStockById((int)order.getProduct_id());
         if(productStock == -1) return false;
         if(order.getQuantity() > productStock) return false;

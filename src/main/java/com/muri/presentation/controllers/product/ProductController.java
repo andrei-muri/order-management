@@ -49,7 +49,7 @@ public class ProductController extends AbstractController<Product> {
             int selectedRow = view.getTable().getSelectedRow();
             if(selectedRow >= 0) {
                 Product instance = (Product) getInstanceFromRow(selectedRow);
-                OrderBL.deleteByProductOrClientId((int)instance.getId(), true);
+
                 ProductBL.deleteProduct(instance);
                 populateTableWithData(ProductBL.findAll());
             } else {

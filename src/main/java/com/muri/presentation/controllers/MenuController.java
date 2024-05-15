@@ -1,11 +1,13 @@
 package com.muri.presentation.controllers;
 
+import com.muri.business.BillBL;
 import com.muri.business.ClientBL;
 import com.muri.business.OrderBL;
 import com.muri.business.ProductBL;
 import com.muri.dao.ClientDAO;
 import com.muri.model.Client;
 import com.muri.model.Product;
+import com.muri.presentation.controllers.bill.BillController;
 import com.muri.presentation.controllers.client.ClientController;
 import com.muri.presentation.controllers.order.OrderController;
 import com.muri.presentation.controllers.product.ProductController;
@@ -36,6 +38,10 @@ public class MenuController {
         view.getOrderButton().addActionListener((e) -> {
             view.setVisible(false);
             new OrderController().populateTableWithData(OrderBL.findAll());
+        });
+        view.getLogButton().addActionListener((e) -> {
+            view.setVisible(false);
+            new BillController().populateTableWithData(BillBL.findAll());
         });
     }
 }

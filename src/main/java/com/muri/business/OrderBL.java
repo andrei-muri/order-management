@@ -2,6 +2,7 @@ package com.muri.business;
 
 import com.muri.business.validators.OrderValidator;
 import com.muri.business.validators.Validator;
+import com.muri.dao.BillDAO;
 import com.muri.dao.OrderDAO;
 import com.muri.dao.ProductDAO;
 import com.muri.model.Order;
@@ -20,6 +21,8 @@ public class OrderBL {
     public static void insertOrder(Order order) {
         if(!validator.validate(order)) throw new IllegalArgumentException("Invalid order");
         dao.insert(order);
+        BillBL.createBill(order);
+
         productDAO.decrementStockById(order.getQuantity(), (int)order.getProduct_id());
     }
 

@@ -43,9 +43,9 @@ public class AbstractView<T> extends JFrame{
 
         // Add buttons to the panel
         buttonPanel.add(backButton);
-        buttonPanel.add(addButton);
-        if(!type.getSimpleName().equals("Order")) buttonPanel.add(editButton);
-        buttonPanel.add(deleteButton);
+        if(!type.getSimpleName().equals("Bill")) buttonPanel.add(addButton);
+        if(!type.getSimpleName().equals("Order") && !type.getSimpleName().equals("Bill")) buttonPanel.add(editButton);
+        if(!type.getSimpleName().equals("Order")  && !type.getSimpleName().equals("Bill")) buttonPanel.add(deleteButton);
 
 
         add(buttonPanel, BorderLayout.SOUTH);  // Add the button panel to the south region of the frame

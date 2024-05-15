@@ -27,6 +27,7 @@ public class ClientBL {
     }
 
     public static void deleteClient(Client client) {
+        OrderBL.deleteByProductOrClientId((int)client.getId(), false);
         if(dao.delete(client) == 0) {
             System.out.println("No deletion");
         }

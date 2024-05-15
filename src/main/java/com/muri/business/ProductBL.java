@@ -27,6 +27,7 @@ public class ProductBL {
     }
 
     public static void deleteProduct(Product product) {
+        OrderBL.deleteByProductOrClientId((int)product.getId(), true);
         if(dao.delete(product) == 0) {
             System.out.println("No deletion");
         }

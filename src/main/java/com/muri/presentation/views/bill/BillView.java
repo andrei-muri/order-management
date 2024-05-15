@@ -1,4 +1,7 @@
 package com.muri.presentation.views.bill;
 
-public class BillView {
+import com.muri.model.Bill;
+import com.muri.presentation.views.abstractview.AbstractView;
+
+public class BillView extends AbstractView<Bill> {
 }

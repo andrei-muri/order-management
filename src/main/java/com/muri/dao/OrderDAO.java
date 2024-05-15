@@ -25,6 +25,9 @@ public class OrderDAO extends AbstractDAO<Order> {
             return statement.executeUpdate();
         } catch (SQLException ex) {
             LOGGER.log(Level.SEVERE, "Error in deleting order by id " + ex.getMessage());
+        } finally {
+            ConnectionFactory.close(connection);
+            ConnectionFactory.close(statement);
         }
         return 0;
     }

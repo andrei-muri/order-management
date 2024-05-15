@@ -1,6 +1,7 @@
 package com.muri.dao;
 
 import com.muri.connection.ConnectionFactory;
+import com.muri.model.Bill;
 
 import java.beans.IntrospectionException;
 import java.beans.PropertyDescriptor;
@@ -102,7 +103,8 @@ public class AbstractDAO<T> {
 
 
 
-    public int findById(int id) {
+    public T findById(int id) {
+        T instance = null;
         Connection connection = null;
         PreparedStatement statement = null;
         ResultSet resultSet = null;
@@ -113,7 +115,7 @@ public class AbstractDAO<T> {
             statement.setObject(1, id);
             resultSet = statement.executeQuery();
 
-            return resultSet.next() ? 1 : 0;
+            return createObjects(resultSet).getFirst();
         } catch (SQLException e) {
             LOGGER.log(Level.WARNING, "DAO::findById " + e.getMessage());
         } finally {
@@ -121,7 +123,7 @@ public class AbstractDAO<T> {
             ConnectionFactory.close(statement);
             ConnectionFactory.close(connection);
         }
-        return 0;
+        return null;
     }
     public List<T> findAll() {
         Connection connection = null;
@@ -282,9 +284,11 @@ public class AbstractDAO<T> {
             }
         } catch (InstantiationException | IllegalAccessException | SecurityException | IllegalArgumentException |
                  InvocationTargetException | SQLException | IntrospectionException e) {
-            LOGGER.log(Level.SEVERE, "Error in creating list of objects :: " + e.getMessage());
+            LOGGER.log(Level.SEVERE, "Error in creating list of objects :: " + e.toString());
         }
         return list;
     }
+
+
 
 }

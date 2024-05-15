@@ -30,15 +30,26 @@ public class AbstractController<T> {
     int lastRow;
 
     @SuppressWarnings("unchecked")
+    public AbstractController(AbstractView<T> view) {
+        this.view = view;
+        this.type = (Class<T>) ((ParameterizedType) getClass().getGenericSuperclass()).getActualTypeArguments()[0];
+        initTable();
+        view.revalidate();
+        view.repaint();
+        view.setVisible(true);
+        setBackButton();
+    }
+
+    @SuppressWarnings("unchecked")
     public AbstractController(AbstractView<T> view, AbstractAddView<T> addView, AbstractEditView<T> editView) {
         this.view = view;
         this.addView = addView;
         this.editView = editView;
         this.type = (Class<T>) ((ParameterizedType) getClass().getGenericSuperclass()).getActualTypeArguments()[0];
-        view.setVisible(true);
         initTable();
         view.revalidate();
         view.repaint();
+        view.setVisible(true);
         setBackButton();
         setActions();
     }

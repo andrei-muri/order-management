@@ -53,7 +53,7 @@ public class ClientController extends AbstractController<Client> {
             int selectedRow = view.getTable().getSelectedRow();
             if(selectedRow >= 0) {
                 Client instance = (Client) getInstanceFromRow(selectedRow);
-                OrderBL.deleteByProductOrClientId((int)instance.getId(), false);
+
                 ClientBL.deleteClient(instance);
                 populateTableWithData(ClientBL.findAll());
             } else {
