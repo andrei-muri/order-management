@@ -37,13 +37,14 @@ public class AbstractDAO<T> {
     private String createSelectAllQuery(String table) {
         StringBuilder sb = new StringBuilder();
         sb.append("SELECT * FROM ");
+        if(table.equals("Order")) sb.append("order_management.");
         sb.append(table.toLowerCase());
         return sb.toString();
     }
-
     private String createInsertQuery(String table) {
         StringBuilder sb = new StringBuilder();
         sb.append("INSERT INTO ");
+        if(table.equals("Order")) sb.append("order_management.");
         sb.append(table); sb.append(" (");
         for(Field field : type.getDeclaredFields()) {
             field.setAccessible(true);
@@ -68,7 +69,6 @@ public class AbstractDAO<T> {
 
         return sb.toString();
     }
-
     private String createUpdateQuery(String table) {
         StringBuilder sb = new StringBuilder();
         sb.append("UPDATE ");
@@ -93,11 +93,36 @@ public class AbstractDAO<T> {
 
         return sb.toString();
     }
+    private String createDeleteQuery(String table) {
+        return "DELETE FROM " + (type.getSimpleName().equalsIgnoreCase("Order") ? "order_management." : "") + table + " WHERE id = ?";
+    }
+    private String createFindByIdQuery(String table) {
+        return "SELECT * FROM " + table + " WHERE id = ?";
+    }
 
-//    private String createDeleteQuery(String table) {
-//
-//    }
 
+
+    public int findById(int id) {
+        Connection connection = null;
+        PreparedStatement statement = null;
+        ResultSet resultSet = null;
+        String query = createFindByIdQuery(type.getSimpleName());
+        try {
+            connection = ConnectionFactory.getConnection();
+            statement = connection.prepareStatement(query);
+            statement.setObject(1, id);
+            resultSet = statement.executeQuery();
+
+            return resultSet.next() ? 1 : 0;
+        } catch (SQLException e) {
+            LOGGER.log(Level.WARNING, "DAO::findById " + e.getMessage());
+        } finally {
+            ConnectionFactory.close(resultSet);
+            ConnectionFactory.close(statement);
+            ConnectionFactory.close(connection);
+        }
+        return 0;
+    }
     public List<T> findAll() {
         Connection connection = null;
         PreparedStatement statement = null;
@@ -109,7 +134,6 @@ public class AbstractDAO<T> {
             resultSet = statement.executeQuery();
             List<T> objects = createObjects(resultSet);
             if(objects.isEmpty()) LOGGER.info("DAO::findAll The SELECT * query returned no element");
-            assert objects != null;
             return objects;
         } catch (SQLException e) {
             LOGGER.log(Level.WARNING, type.getName() + "DAO:findAll " + e.getMessage());
@@ -120,7 +144,35 @@ public class AbstractDAO<T> {
         }
         return null;
     }
+    public int delete(T object) {
+        Connection connection = null;
+        PreparedStatement statement = null;
+        String query = createDeleteQuery(type.getSimpleName());
+        try {
+            connection = ConnectionFactory.getConnection();
+            statement = connection.prepareStatement(query);
 
+            Field idField = object.getClass().getDeclaredField("id");
+            idField.setAccessible(true);
+            Object idValue = idField.get(object);
+            statement.setObject(1, idValue);
+
+            int rowsUpdated = statement.executeUpdate();
+            if (rowsUpdated > 0) {
+                LOGGER.info("Deleted " + rowsUpdated + " row(s) in " + type.getSimpleName());
+                return rowsUpdated;
+            } else {
+                LOGGER.warning("Delete operation failed for " + type.getSimpleName());
+                return 0;
+            }
+        } catch(SQLException | IllegalAccessException | NoSuchFieldException e) {
+            LOGGER.log(Level.SEVERE, "Exception in delete :: " + e.getMessage());
+        } finally {
+            ConnectionFactory.close(statement);
+            ConnectionFactory.close(connection);
+        }
+        return 0;
+    }
     public T insert(T object) {
         Connection connection = null;
         PreparedStatement statement = null;
@@ -165,7 +217,6 @@ public class AbstractDAO<T> {
         }
         return object;
     }
-
     public T update(T object) {
         Connection connection = null;
         PreparedStatement statement = null;
@@ -206,7 +257,6 @@ public class AbstractDAO<T> {
         }
         return object;
     }
-
     private List<T> createObjects(ResultSet resultSet) {
         List<T> list = new ArrayList<>();
         Constructor[] ctors = type.getDeclaredConstructors();
@@ -232,7 +282,7 @@ public class AbstractDAO<T> {
             }
         } catch (InstantiationException | IllegalAccessException | SecurityException | IllegalArgumentException |
                  InvocationTargetException | SQLException | IntrospectionException e) {
-            LOGGER.log(Level.SEVERE, "Error ini creating list of objects :: " + e.getMessage());
+            LOGGER.log(Level.SEVERE, "Error in creating list of objects :: " + e.getMessage());
         }
         return list;
     }

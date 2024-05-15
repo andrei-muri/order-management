@@ -1,4 +1,4 @@
 package com.muri.model;
 
-public record Bill(String productName, int quantity, int totalPrice) {
+public record Bill(int id, String clientName, String productName, int unitPrice, int quantity, int totalPrice) {
 }

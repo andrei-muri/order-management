@@ -1,7 +1,9 @@
 package com.muri.presentation.controllers.client;
 
 import com.muri.business.ClientBL;
+import com.muri.business.OrderBL;
 import com.muri.model.Client;
+import com.muri.model.Product;
 import com.muri.presentation.controllers.abstractcontroller.AbstractController;
 import com.muri.presentation.views.abstractview.AbstractEditView;
 import com.muri.presentation.views.client.ClientAddView;
@@ -9,6 +11,7 @@ import com.muri.presentation.views.client.ClientEditView;
 import com.muri.presentation.views.client.ClientView;
 
 import javax.swing.*;
+import javax.swing.table.DefaultTableModel;
 import java.util.Map;
 
 public class ClientController extends AbstractController<Client> {
@@ -31,7 +34,7 @@ public class ClientController extends AbstractController<Client> {
             populateTableWithData(ClientBL.findAll());
             view.setVisible(true);
         });
-
+        //update
         editView.getEditButton().addActionListener(e -> {
             long id = (long) view.getTable().getModel().getValueAt(view.getTable().getSelectedRow(), 0);
             Client client = getInstanceFromTextFields(editView);
@@ -45,5 +48,18 @@ public class ClientController extends AbstractController<Client> {
             populateTableWithData(ClientBL.findAll());
             view.setVisible(true);
         });
+        //delete
+        view.getDeleteButton().addActionListener(e -> {
+            int selectedRow = view.getTable().getSelectedRow();
+            if(selectedRow >= 0) {
+                Client instance = (Client) getInstanceFromRow(selectedRow);
+                OrderBL.deleteByProductOrClientId((int)instance.getId(), false);
+                ClientBL.deleteClient(instance);
+                populateTableWithData(ClientBL.findAll());
+            } else {
+                JOptionPane.showMessageDialog(view, "Please select a row to delete.");
+            }
+        });
+
     }
 }

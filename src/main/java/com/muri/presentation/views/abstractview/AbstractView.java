@@ -44,7 +44,7 @@ public class AbstractView<T> extends JFrame{
         // Add buttons to the panel
         buttonPanel.add(backButton);
         buttonPanel.add(addButton);
-        buttonPanel.add(editButton);
+        if(!type.getSimpleName().equals("Order")) buttonPanel.add(editButton);
         buttonPanel.add(deleteButton);
 
 

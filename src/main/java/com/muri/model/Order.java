@@ -1,9 +1,18 @@
 package com.muri.model;
 
 public class Order {
+    long id;
     long client_id;
     long product_id;
     int quantity;
+
+    public long getId() {
+        return id;
+    }
+
+    public void setId(long id) {
+        this.id = id;
+    }
 
     public void setClient_id(long client_id) {
         this.client_id = client_id;

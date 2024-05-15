@@ -59,18 +59,19 @@ public class AbstractController<T> {
     public void populateTableWithData(List<T> dataList) {
         DefaultTableModel model = (DefaultTableModel) view.getTable().getModel();
         model.setRowCount(0); // Clear existing data
-
-        for (T dataItem : dataList) {
-            Vector<Object> row = new Vector<>();
-            for (Field field : type.getDeclaredFields()) {
-                field.setAccessible(true); // Make private fields accessible
-                try {
-                    row.add(field.get(dataItem));
-                } catch (IllegalAccessException e) {
-                    e.printStackTrace();
+        if(dataList != null) {
+            for (T dataItem : dataList) {
+                Vector<Object> row = new Vector<>();
+                for (Field field : type.getDeclaredFields()) {
+                    field.setAccessible(true); // Make private fields accessible
+                    try {
+                        row.add(field.get(dataItem));
+                    } catch (IllegalAccessException e) {
+                        e.printStackTrace();
+                    }
                 }
+                model.addRow(row);
             }
-            model.addRow(row);
         }
     }
 
@@ -150,7 +151,7 @@ public class AbstractController<T> {
         return instance;
     }
 
-    private T getInstanceFromRow(int row) {
+    protected T getInstanceFromRow(int row) {
         DefaultTableModel model = (DefaultTableModel) view.getTable().getModel();
         T instance;
         try {

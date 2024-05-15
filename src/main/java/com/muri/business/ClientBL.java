@@ -16,13 +16,19 @@ public class ClientBL {
 
     public static Client insertClient(Client client) {
         if(!validator.validate(client)) {
-            throw new IllegalArgumentException("Wrong name format");
+            throw new IllegalArgumentException("Wrong name format::insert bl");
         }
         return dao.insert(client);
     }
 
     public static void updateClient(Client client) {
-        if(!validator.validate(client)) throw new IllegalArgumentException("Wrong name format");
+        if(!validator.validate(client)) throw new IllegalArgumentException("Wrong name format::update bl");
         dao.update(client);
+    }
+
+    public static void deleteClient(Client client) {
+        if(dao.delete(client) == 0) {
+            System.out.println("No deletion");
+        }
     }
 }

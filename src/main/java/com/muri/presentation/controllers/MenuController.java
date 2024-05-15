@@ -1,6 +1,7 @@
 package com.muri.presentation.controllers;
 
 import com.muri.business.ClientBL;
+import com.muri.business.OrderBL;
 import com.muri.business.ProductBL;
 import com.muri.dao.ClientDAO;
 import com.muri.model.Client;
@@ -34,7 +35,7 @@ public class MenuController {
         });
         view.getOrderButton().addActionListener((e) -> {
             view.setVisible(false);
-            new OrderController();
+            new OrderController().populateTableWithData(OrderBL.findAll());
         });
     }
 }

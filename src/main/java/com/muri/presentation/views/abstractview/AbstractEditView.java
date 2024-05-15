@@ -12,7 +12,7 @@ import java.util.List;
 import java.util.Map;
 
 public class AbstractEditView<T> extends JFrame implements ObjectManipulator{
-    JButton editButton = new JButton("Add");
+    JButton editButton = new JButton("Edit");
     JButton cancelButton  = new JButton("Cancel");
     Class<T> type;
     List<JTextField> textFieldList = new ArrayList<>();
