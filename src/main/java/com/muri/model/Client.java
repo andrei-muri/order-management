@@ -1,5 +1,9 @@
 package com.muri.model;
 
+/**
+ * Models a warehouse client.
+ * @author Muresan Andrei-Ioan UTCN Computer Science 30425_2 2024
+ */
 public class Client {
     long id;
     String name;

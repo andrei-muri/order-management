@@ -8,8 +8,17 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Level;
 
+/**
+ * Data access class meant for operations done on the bill table.
+ * @author Muresan Andrei-Ioan UTCN Computer Science 30425_2 2024
+ */
 public class BillDAO extends AbstractDAO<Bill> {
 
+    /**
+     * Overridden insert
+     * @param bill to be inserted
+     * @return the inserted bill
+     */
     @Override
     public Bill insert(Bill bill) {
         Connection connection = null;
@@ -42,6 +51,10 @@ public class BillDAO extends AbstractDAO<Bill> {
         return null;
     }
 
+    /**
+     * Overridden findAll
+     * @return {@code List} of bills
+     */
     @Override
     public List<Bill> findAll() {
         Connection connection = null;
@@ -64,7 +77,6 @@ public class BillDAO extends AbstractDAO<Bill> {
         }
         return null;
     }
-
     private List<Bill> createBills(ResultSet resultSet) {
         List<Bill> list = new ArrayList<>();
         try {

@@ -15,6 +15,13 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.logging.SimpleFormatter;
 
+/**
+ * Data access abstract class that offers access to the database for CRUD operations on an order management table.
+ * It is meant for inheriting by {@link com.muri.dao.BillDAO}, {@link com.muri.dao.ClientDAO},
+ * {@link com.muri.dao.OrderDAO}, {@link com.muri.dao.ProductDAO}.
+ * @param <T> the models: {@link com.muri.model.Bill}, {@link com.muri.model.Order}, {@link com.muri.model.Product}, {@link com.muri.model.Client}
+ * @author Muresan Andrei UTCN Computer Science 30425_2 2024
+ */
 public class AbstractDAO<T> {
     protected final Logger LOGGER = Logger.getLogger(AbstractDAO.class.getName());
     private final Class<T> type;
@@ -35,13 +42,6 @@ public class AbstractDAO<T> {
         }
     }
 
-    private String createSelectAllQuery(String table) {
-        StringBuilder sb = new StringBuilder();
-        sb.append("SELECT * FROM ");
-        if(table.equals("Order")) sb.append("order_management.");
-        sb.append(table.toLowerCase());
-        return sb.toString();
-    }
     private String createInsertQuery(String table) {
         StringBuilder sb = new StringBuilder();
         sb.append("INSERT INTO ");
@@ -97,84 +97,23 @@ public class AbstractDAO<T> {
     private String createDeleteQuery(String table) {
         return "DELETE FROM " + (type.getSimpleName().equalsIgnoreCase("Order") ? "order_management." : "") + table + " WHERE id = ?";
     }
+    private String createSelectAllQuery(String table) {
+        StringBuilder sb = new StringBuilder();
+        sb.append("SELECT * FROM ");
+        if(table.equals("Order")) sb.append("order_management.");
+        sb.append(table.toLowerCase());
+        return sb.toString();
+    }
     private String createFindByIdQuery(String table) {
         return "SELECT * FROM " + table + " WHERE id = ?";
     }
 
 
-
-    public T findById(int id) {
-        T instance = null;
-        Connection connection = null;
-        PreparedStatement statement = null;
-        ResultSet resultSet = null;
-        String query = createFindByIdQuery(type.getSimpleName());
-        try {
-            connection = ConnectionFactory.getConnection();
-            statement = connection.prepareStatement(query);
-            statement.setObject(1, id);
-            resultSet = statement.executeQuery();
-
-            return createObjects(resultSet).getFirst();
-        } catch (SQLException e) {
-            LOGGER.log(Level.WARNING, "DAO::findById " + e.getMessage());
-        } finally {
-            ConnectionFactory.close(resultSet);
-            ConnectionFactory.close(statement);
-            ConnectionFactory.close(connection);
-        }
-        return null;
-    }
-    public List<T> findAll() {
-        Connection connection = null;
-        PreparedStatement statement = null;
-        ResultSet resultSet = null;
-        String query = createSelectAllQuery(type.getSimpleName());
-        try {
-            connection = ConnectionFactory.getConnection();
-            statement = connection.prepareStatement(query);
-            resultSet = statement.executeQuery();
-            List<T> objects = createObjects(resultSet);
-            if(objects.isEmpty()) LOGGER.info("DAO::findAll The SELECT * query returned no element");
-            return objects;
-        } catch (SQLException e) {
-            LOGGER.log(Level.WARNING, type.getName() + "DAO:findAll " + e.getMessage());
-        } finally {
-            ConnectionFactory.close(resultSet);
-            ConnectionFactory.close(statement);
-            ConnectionFactory.close(connection);
-        }
-        return null;
-    }
-    public int delete(T object) {
-        Connection connection = null;
-        PreparedStatement statement = null;
-        String query = createDeleteQuery(type.getSimpleName());
-        try {
-            connection = ConnectionFactory.getConnection();
-            statement = connection.prepareStatement(query);
-
-            Field idField = object.getClass().getDeclaredField("id");
-            idField.setAccessible(true);
-            Object idValue = idField.get(object);
-            statement.setObject(1, idValue);
-
-            int rowsUpdated = statement.executeUpdate();
-            if (rowsUpdated > 0) {
-                LOGGER.info("Deleted " + rowsUpdated + " row(s) in " + type.getSimpleName());
-                return rowsUpdated;
-            } else {
-                LOGGER.warning("Delete operation failed for " + type.getSimpleName());
-                return 0;
-            }
-        } catch(SQLException | IllegalAccessException | NoSuchFieldException e) {
-            LOGGER.log(Level.SEVERE, "Exception in delete :: " + e.getMessage());
-        } finally {
-            ConnectionFactory.close(statement);
-            ConnectionFactory.close(connection);
-        }
-        return 0;
-    }
+    /**
+     * Inserts an object into the database
+     * @param object to be inserted
+     * @return the inserted object
+     */
     public T insert(T object) {
         Connection connection = null;
         PreparedStatement statement = null;
@@ -219,6 +158,12 @@ public class AbstractDAO<T> {
         }
         return object;
     }
+
+    /**
+     * Updates an object from the database
+     * @param object to be updated
+     * @return the updated object
+     */
     public T update(T object) {
         Connection connection = null;
         PreparedStatement statement = null;
@@ -259,6 +204,96 @@ public class AbstractDAO<T> {
         }
         return object;
     }
+
+    /**
+     * Deletes an object from the database
+     * @param object to be deleted
+     * @return the deleted object
+     */
+    public int delete(T object) {
+        Connection connection = null;
+        PreparedStatement statement = null;
+        String query = createDeleteQuery(type.getSimpleName());
+        try {
+            connection = ConnectionFactory.getConnection();
+            statement = connection.prepareStatement(query);
+
+            Field idField = object.getClass().getDeclaredField("id");
+            idField.setAccessible(true);
+            Object idValue = idField.get(object);
+            statement.setObject(1, idValue);
+
+            int rowsUpdated = statement.executeUpdate();
+            if (rowsUpdated > 0) {
+                LOGGER.info("Deleted " + rowsUpdated + " row(s) in " + type.getSimpleName());
+                return rowsUpdated;
+            } else {
+                LOGGER.warning("Delete operation failed for " + type.getSimpleName());
+                return 0;
+            }
+        } catch(SQLException | IllegalAccessException | NoSuchFieldException e) {
+            LOGGER.log(Level.SEVERE, "Exception in delete :: " + e.getMessage());
+        } finally {
+            ConnectionFactory.close(statement);
+            ConnectionFactory.close(connection);
+        }
+        return 0;
+    }
+
+    /**
+     * Retrieves all the objects
+     * @return {@code List} of models
+     */
+    public List<T> findAll() {
+        Connection connection = null;
+        PreparedStatement statement = null;
+        ResultSet resultSet = null;
+        String query = createSelectAllQuery(type.getSimpleName());
+        try {
+            connection = ConnectionFactory.getConnection();
+            statement = connection.prepareStatement(query);
+            resultSet = statement.executeQuery();
+            List<T> objects = createObjects(resultSet);
+            if(objects.isEmpty()) LOGGER.info("DAO::findAll The SELECT * query returned no element");
+            return objects;
+        } catch (SQLException e) {
+            LOGGER.log(Level.WARNING, type.getName() + "DAO:findAll " + e.getMessage());
+        } finally {
+            ConnectionFactory.close(resultSet);
+            ConnectionFactory.close(statement);
+            ConnectionFactory.close(connection);
+        }
+        return null;
+    }
+
+    /**
+     * Returns an object that is found after its id
+     * @param id model's id
+     * @return the model
+     */
+    public T findById(int id) {
+        T instance = null;
+        Connection connection = null;
+        PreparedStatement statement = null;
+        ResultSet resultSet = null;
+        String query = createFindByIdQuery(type.getSimpleName());
+        try {
+            connection = ConnectionFactory.getConnection();
+            statement = connection.prepareStatement(query);
+            statement.setObject(1, id);
+            resultSet = statement.executeQuery();
+
+            return createObjects(resultSet).getFirst();
+        } catch (SQLException e) {
+            LOGGER.log(Level.WARNING, "DAO::findById " + e.getMessage());
+        } finally {
+            ConnectionFactory.close(resultSet);
+            ConnectionFactory.close(statement);
+            ConnectionFactory.close(connection);
+        }
+        return null;
+    }
+
     private List<T> createObjects(ResultSet resultSet) {
         List<T> list = new ArrayList<>();
         Constructor[] ctors = type.getDeclaredConstructors();

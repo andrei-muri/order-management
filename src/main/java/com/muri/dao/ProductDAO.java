@@ -6,6 +6,10 @@ import com.muri.model.Product;
 import java.sql.*;
 import java.util.logging.Level;
 
+/**
+ * Data access class meant for operations done on the product table.
+ * @author Muresan Andrei-Ioan UTCN Computer Science 30425_2 2024
+ */
 public class ProductDAO extends AbstractDAO<Product> {
 
     private String prepareGetStockByIdQuery() {
@@ -15,6 +19,11 @@ public class ProductDAO extends AbstractDAO<Product> {
         return "UPDATE product SET stock = stock - ? WHERE id = ?";
     }
 
+    /**
+     * Gets the stock of a product
+     * @param id of product to retrieve stock from
+     * @return the stock
+     */
     public int getStockById(int id) {
         Connection connection = null;
         PreparedStatement statement = null;

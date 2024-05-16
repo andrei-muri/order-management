@@ -7,6 +7,16 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.logging.SimpleFormatter;
 
+/**
+ * <p>
+ *     Utility class for handling the connection with the database server. It uses the singleton principle.
+ * </p>
+ * <p>
+ *     It can create retrieve a connection and close a connection, or a statement, or a result set
+ * </p>
+ * @author Muresan Andrei UTCN Computer Science 30425_2
+ * @source UTCN Distributed Systems Research Laboratory, Marcel Antal
+ */
 public class ConnectionFactory {
     private static final Logger LOGGER = Logger.getLogger(ConnectionFactory.class.getName());
     private static final String DRIVER = "com.mysql.cj.jdbc.Driver";
@@ -47,10 +57,18 @@ public class ConnectionFactory {
         return connection;
     }
 
+    /**
+     * Retrieves the connection to the database
+     * @return {@link Connection} to database
+     */
     public static Connection getConnection() {
         return instance.createConnection();
     }
 
+    /**
+     * Closes the connection given as parameter
+     * @param connection to be closed
+     */
     public static void close(Connection connection) {
         if(connection != null) {
             try {
@@ -64,6 +82,10 @@ public class ConnectionFactory {
         }
     }
 
+    /**
+     * Closes the statement give as parameter
+     * @param statement to be closed
+     */
     public static void close(Statement statement) {
         if(statement != null) {
             try {
@@ -77,6 +99,10 @@ public class ConnectionFactory {
         }
     }
 
+    /**
+     * Closes the result set given as parameters
+     * @param resultSet to be closed
+     */
     public static void close(ResultSet resultSet) {
         if (resultSet != null) {
             try {

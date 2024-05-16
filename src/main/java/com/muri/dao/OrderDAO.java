@@ -6,6 +6,10 @@ import com.muri.model.Order;
 import java.sql.*;
 import java.util.logging.Level;
 
+/**
+ * Data access class meant for operations done on the order table.
+ * @author Muresan Andrei-Ioan UTCN Computer Science 30425_2 2024
+ */
 public class OrderDAO extends AbstractDAO<Order> {
 
     private String prepareDeleteByProductQuery() {
@@ -14,6 +18,13 @@ public class OrderDAO extends AbstractDAO<Order> {
     private String prepareDeleteByClientQuery() {
         return "DELETE FROM order_management.order WHERE client_id = ?";
     }
+
+    /**
+     * Deletes order by product or client id.
+     * @param id of the product/client
+     * @param flag {@code true} for client, {@code false} for product
+     * @return
+     */
     public int deleteByProductOrClientId(int id, boolean flag) { //true product, false client
         Connection connection = null;
         PreparedStatement statement = null;

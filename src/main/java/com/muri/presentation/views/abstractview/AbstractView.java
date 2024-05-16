@@ -19,7 +19,7 @@ public class AbstractView<T> extends JFrame{
         this.type = (Class<T>) ((ParameterizedType) getClass().getGenericSuperclass()).getActualTypeArguments()[0];
         // Set the frame properties
         setTitle(type.getSimpleName());
-        setSize(400, 300);
+        setSize(800, 400);
         setLocationRelativeTo(null);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setLayout(new BorderLayout());  // Use BorderLayout for the main frame

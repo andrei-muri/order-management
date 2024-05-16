@@ -1,5 +1,9 @@
 package com.muri.model;
 
+/**
+ * Models a warehouse product
+ * @author Muresan Andrei-Ioan UTCN Computer Science 30425_2 2024
+ */
 public class Product {
     long id;
     String name;
